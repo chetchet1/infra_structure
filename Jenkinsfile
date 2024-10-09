@@ -36,6 +36,8 @@ pipeline {
                         aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
                         eksctl utils associate-iam-oidc-provider --region=ap-northeast-2 --cluster=test-eks-cluster --approve
                         eksctl get cluster --region ap-northeast-2
+ 	            type C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                        kubectl get nodes
                         eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                         '''
                     }
