@@ -28,6 +28,7 @@ pipeline {
                 	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
                 	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                 	'''
+	        }
 	    }
             }
         }
