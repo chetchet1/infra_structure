@@ -42,7 +42,7 @@ pipeline {
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
                         
-                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
+                        eksctl --verbose create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                         '''
                     }
                 }
