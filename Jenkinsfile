@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    environment {
+        KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
+    }
+
     stages {
         // Terraform으로 EKS 클러스터 및 자원 생성
         stage('Terraform Apply') {
@@ -22,14 +26,14 @@ pipeline {
         // EBS CSI 드라이버 설치
         stage('Install EBS CSI Driver') {
             steps {
-	    script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+	        script {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                 	bat '''
-                	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
-                	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
+                	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster --kubeconfig %KUBECONFIG%
+                	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --kubeconfig %KUBECONFIG%
                 	'''
+	            }
 	        }
-	    }
             }
         }
 
