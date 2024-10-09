@@ -40,10 +40,8 @@ pipeline {
                         kubectl get nodes
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
-                        # YAML 파일을 사용하여 서비스 계정 생성
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
                         
-                        # EBS CSI 드라이버 설치
                         eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                         '''
                     }
