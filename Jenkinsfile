@@ -38,6 +38,7 @@ pipeline {
                         eksctl get cluster --region ap-northeast-2
  	            type C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         kubectl get nodes
+	            aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                         '''
                     }
