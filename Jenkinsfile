@@ -24,6 +24,7 @@ pipeline {
             steps {
                 bat '''
                 aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
+	    aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 339713037008.dkr.ecr.ap-northeast-2.amazonaws.com
                 eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                 '''
             }
