@@ -28,9 +28,11 @@ pipeline {
             steps {
 	        script {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                    // KUBECONFIG 환경변수로 kubeconfig 파일을 설정하여 eksctl 명령 실행
                 	bat '''
-                	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster --kubeconfig %KUBECONFIG%
-                	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --kubeconfig %KUBECONFIG%
+                	set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
+                	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                 	'''
 	            }
 	        }
