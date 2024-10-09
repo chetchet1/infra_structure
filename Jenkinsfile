@@ -28,17 +28,18 @@ pipeline {
         // EBS CSI 드라이버 설치
         stage('Install EBS CSI Driver') {
             steps {
-	        script {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                    // KUBECONFIG 환경변수로 kubeconfig 파일을 설정하여 eksctl 명령 실행
-                	bat '''
-                	set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
-                	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
-		eksctl utils associate-iam-oidc-provider --region=ap-northeast-2 --cluster=test-eks-cluster --approve
-                	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
-                	'''
-	            }
-	        }
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        // KUBECONFIG 환경변수로 kubeconfig 파일을 설정하여 eksctl 명령 실행
+                        bat '''
+                        set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                        aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
+                        eksctl utils associate-iam-oidc-provider --region=ap-northeast-2 --cluster=test-eks-cluster --approve
+                        eksctl get cluster --region ap-northeast-2
+                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
+                        '''
+                    }
+                }
             }
         }
 
