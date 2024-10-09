@@ -51,11 +51,20 @@ pipeline {
                 '''
             }
         }
+
+        // Kafka 토픽 생성
+        stage('Create Kafka Topics') {
+            steps {
+                bat '''
+                kubectl exec -it $(kubectl get pod -l app=kafka -o jsonpath='{.items[0].metadata.name}') -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
+                '''
+            }
+        }
     }
     
     post {
         success {
-            echo 'Infrastructure successfully deployed!'
+            echo 'Infrastructure successfully deployed and topics created!'
         }
         failure {
             echo 'Deployment failed.'
