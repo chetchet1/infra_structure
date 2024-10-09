@@ -3,6 +3,8 @@ pipeline {
     
     environment {
         KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
+        REGION = 'ap-northeast-2'
+        AWS_CREDENTIAL_NAME = 'aws-key'
     }
 
     stages {
@@ -32,6 +34,7 @@ pipeline {
                 	bat '''
                 	set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                 	aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
+		eksctl utils associate-iam-oidc-provider --region=ap-northeast-2 --cluster=test-eks-cluster --approve
                 	eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force
                 	'''
 	            }
