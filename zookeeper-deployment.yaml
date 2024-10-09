@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      serviceAccountName: ebs-csi-controller-sa  # 서비스 어카운트 지정
+      containers:
+        - name: zookeeper
+          image: zookeeper:3.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 2181
+          env:
+            - name: ZOO_MY_ID
+              value: "1"
+            - name: ZOO_SERVERS
+              value: "zookeeper:2888:3888"
+          volumeMounts:
+            - name: zookeeper-storage
+              mountPath: /data
+      volumes:
+        - name: zookeeper-storage
+          persistentVolumeClaim:
+            claimName: zookeeper-pvc
