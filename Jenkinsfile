@@ -61,6 +61,20 @@ pipeline {
             }
         }
 
+        // Uninstall previous Zookeeper if it exists
+        stage('Uninstall Previous Zookeeper') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                        helm uninstall zookeeper || echo "Zookeeper not installed or already uninstalled"
+                        '''
+                    }
+                }
+            }
+        }
+
         // Install Helm Chart for Zookeeper and Kafka
         stage('Install Zookeeper and Kafka with Helm') {
             steps {
@@ -70,9 +84,6 @@ pipeline {
                         set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         helm repo add bitnami https://charts.bitnami.com/bitnami
                         helm repo update
-
-                        REM Install Zookeeper
-                        helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
                         
                         REM Install Kafka (with corrected settings)
                         helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=true --set kafka.kraft.enabled=false --set controller.enabled=false --set controller.replicaCount=0 --set replicaCount=1
