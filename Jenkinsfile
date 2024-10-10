@@ -85,6 +85,16 @@ pipeline {
                         
                         REM Install Kafka (with corrected settings)
                         helm install kafka bitnami/kafka -f E:/docker_Logi/infra_structure/values.yaml
+
+                        REM Wait for the Kafka pod to be in the Running state
+                        echo Waiting for Kafka pods to be in Running state...
+                        :loop
+                        kubectl get pods -l app.kubernetes.io/name=kafka -o jsonpath="{.items[?(@.status.phase=='Running')].metadata.name}" | findstr /C:"kafka-controller" >nul
+                        if errorlevel 1 (
+                            timeout /t 10 >nul
+                            goto loop
+                        )
+                        echo Kafka pods are now Running!
                         '''
                     }
                 }
