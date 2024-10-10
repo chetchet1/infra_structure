@@ -84,7 +84,10 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
-                        kubectl exec -it $(kubectl get pod -l app=kafka -o jsonpath='{.items[0].metadata.name}') -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
+                        FOR /F "tokens=*" %%i IN ('kubectl get pod -l app=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
+                            set KAFKA_POD=%%i
+                        )
+                        kubectl exec -it %KAFKA_POD% -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
                         '''
                     }
                 }
