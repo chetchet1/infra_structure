@@ -31,26 +31,7 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
-                        aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document "{
-                            \\"Version\\": \\"2012-10-17\\",
-                            \\"Statement\\": [
-                                {
-                                    \\"Effect\\": \\"Allow\\",
-                                    \\"Principal\\": {
-                                        \\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/A856AFD07F36D989B0583349EF0A5946\\"
-                                    },
-                                    \\"Action\\": \\"sts:AssumeRoleWithWebIdentity\\",
-                                    \\"Condition\\": {
-                                        \\"StringEquals\\": {
-                                            \\"oidc.eks.ap-northeast-2.amazonaws.com/id/A856AFD07F36D989B0583349EF0A5946:aud\\": \\"sts.amazonaws.com\\"
-                                        },
-                                        \\"StringLike\\": {
-                                            \\"oidc.eks.ap-northeast-2.amazonaws.com/id/A856AFD07F36D989B0583349EF0A5946:sub\\": \\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\"
-                                        }
-                                    }
-                                }
-                            ]
-                        }"
+                        aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document "{\\"Version\\": \\"2012-10-17\\", \\"Statement\\": [{ \\"Effect\\": \\"Allow\\", \\"Principal\\": {\\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/A856AFD07F36D989B0583349EF0A5946\\"}, \\"Action\\": \\"sts:AssumeRoleWithWebIdentity\\", \\"Condition\\": {\\"StringEquals\\": {\\"oidc.eks.ap-northeast-2.amazonaws.com/id/A856AFD07F36D989B0583349EF0A5946:aud\\": \\"sts.amazonaws.com\\"}, \\"StringLike\\": {\\"oidc.eks.ap-northeast-2.amazonaws.com/id/A856AFD07F36D989B0583349EF0A5946:sub\\": \\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\"}}}]}"
                         '''
                     }
                 }
