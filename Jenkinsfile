@@ -71,7 +71,7 @@ pipeline {
                         helm repo update
                         
                         REM Install Kafka (with corrected settings)
-                        helm install kafka bitnami/kafka -f E:/docker_Logi/infra_structure/values.yaml --set persistence.enabled=true --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
+                        helm install kafka bitnami/kafka -f E:/docker_Logi/infra_structure/values.yaml
                         '''
                     }
                 }
