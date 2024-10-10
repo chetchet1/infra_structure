@@ -43,7 +43,7 @@ pipeline {
 
                         // PowerShell 스크립트를 사용하여 JSON 파일의 내용을 동적으로 업데이트
                         bat """
-                        powershell -Command "(Get-Content '${env.JSON_FILE_PATH}' -Raw) -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.*?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \"${oidcProvider}:aud\": \"sts.amazonaws.com\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \"${oidcProvider}:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\" }' | Set-Content '${env.JSON_FILE_PATH}'; if (\$?) { Write-Host 'Content updated successfully.' } else { Write-Host 'Failed to update content.' }"
+                        powershell -Command "(Get-Content '${env.JSON_FILE_PATH}' -Raw) -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.*?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \\\"${oidcProvider}:aud\\\": \\\"sts.amazonaws.com\\\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \\\"${oidcProvider}:sub\\\": \\\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\\" }' | Set-Content '${env.JSON_FILE_PATH}'; if (\$?) { Write-Host 'Content updated successfully.' } else { Write-Host 'Failed to update content.' }"
                         """
 
                         // 업데이트된 JSON 파일 출력 (디버깅용)
