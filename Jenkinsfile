@@ -105,11 +105,11 @@ pipeline {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        bat '''
+		def kafka_pod = powershell(script: 'kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"', returnStdout: true).trim()                        
+
+		bat '''
                         kubectl get pods -l app.kubernetes.io/name=kafka
                         kubectl get storageclass
-
-		def kafka_pod = powershell(script: 'kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"', returnStdout: true).trim()
                        
                         REM Check if KAFKA_POD is set correctly
                         echo kafka_pod: %kafka_pod%
