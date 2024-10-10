@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        // Set KUBECONFIG environment variable to execute eksctl commands
+                        // Set KUBECFIG environment variable to execute eksctl commands
                         bat '''
                         set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
@@ -41,8 +41,6 @@ pipeline {
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
-
-                        
                         '''
                     }
                 }
@@ -62,6 +60,20 @@ pipeline {
             }
         }
 
+        // Uninstall previous Zookeeper if it exists
+        stage('Uninstall Previous Zookeeper') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                        helm uninstall zookeeper || echo "Zookeeper not installed or already uninstalled"
+                        '''
+                    }
+                }
+            }
+        }
+
         // Install Helm Chart for Zookeeper and Kafka
         stage('Install Zookeeper and Kafka with Helm') {
             steps {
@@ -75,6 +87,9 @@ pipeline {
                         REM Install Zookeeper
                         helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
                         
+                        REM Wait for Zookeeper to be ready
+                        kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/name=zookeeper --timeout=300s
+
                         REM Install Kafka (with corrected settings)
                         helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=true --set replicaCount=3 --set controller.replicaCount=0
                         '''
