@@ -76,13 +76,7 @@ pipeline {
                         helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
                         
                         REM Install Kafka (with corrected settings)
-                        helm install kafka bitnami/kafka \
-                            --set persistence.storageClass=ebs-sc \
-                            --set persistence.size=8Gi \
-                            --set zookeeper.enabled=false \
-                            --set externalZookeeper.servers=zookeeper.default.svc.cluster.local:2181 \
-                            --set replicaCount=3 \  # Kafka 브로커 3개 설정
-                            --set controller.replicaCount=0  # Zookeeper 모드에서 Controller 노드를 비활성화
+                        helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=false --set externalZookeeper.servers=zookeeper.default.svc.cluster.local:2181 --set replicaCount=3
                         '''
                     }
                 }
