@@ -25,12 +25,12 @@ pipeline {
             }
         }
         
-        // EBS CSI 드라이버 설치
+        // Install EBS CSI Driver
         stage('Install EBS CSI Driver') {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        // KUBECONFIG 환경변수로 kubeconfig 파일을 설정하여 eksctl 명령 실행
+                        // Set KUBECONFIG environment variable to execute eksctl commands
                         bat '''
                         set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
@@ -47,7 +47,7 @@ pipeline {
             }
         }
 
-        // Kubernetes 스토리지 클래스 및 PVC 생성
+        // Apply Storage Class and PVCs
         stage('Apply Storage Class and PVCs') {
             steps {
                 script {
@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        // Zookeeper 및 Kafka 배포
+        // Deploy Zookeeper and Kafka
         stage('Deploy Zookeeper and Kafka') {
             steps {
                 script {
@@ -78,7 +78,7 @@ pipeline {
             }
         }
 
-        // Kafka 토픽 생성
+        // Create Kafka Topics
         stage('Create Kafka Topics') {
             steps {
                 script {
@@ -87,6 +87,10 @@ pipeline {
                         FOR /F "tokens=*" %%i IN ('kubectl get pod -l app=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
+
+                        REM Check if KAFKA_POD is set correctly
+                        echo Kafka Pod: %KAFKA_POD%
+                        
                         kubectl exec -it %KAFKA_POD% -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
                         '''
                     }
