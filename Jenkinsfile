@@ -36,7 +36,7 @@ pipeline {
 		
                         // IAM 역할 신뢰 정책 업데이트
                         bat """
-                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document '{\\"Version\\": \\"2012-10-17\\", \\"Statement\\": [{\\"Effect\\": \\"Allow\\", \\"Principal\\": {\\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/''' + ${oidcProvider} + '''\\"}, \\"Action\\": \\"sts:AssumeRoleWithWebIdentity\\", \\"Condition\\": {\\"StringEquals\\": {\\"''' + ${oidcProvider} + ''':aud\\": \\"sts.amazonaws.com\\"}, \\"StringLike\\": {\\"''' + ${oidcProvider} + ''':sub\\": \\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\"}}}]}'"
+                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document '{\\"Version\\": \\"2012-10-17\\", \\"Statement\\": [{\\"Effect\\": \\"Allow\\", \\"Principal\\": {\\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\\", \\"Action\\": \\"sts:AssumeRoleWithWebIdentity\\", \\"Condition\\": {\\"StringEquals\\": {\\"${oidcProvider}:aud\\": \\"sts.amazonaws.com\\"}, \\"StringLike\\": {\\"${oidcProvider}:sub\\": \\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\"}}}]}'"
                         """
                     }
                 }
@@ -55,7 +55,6 @@ pipeline {
                         eksctl get cluster --region ap-northeast-2
                         type C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         kubectl get nodes
-                        aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
                         eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
