@@ -1,10 +1,11 @@
 pipeline {
     agent any
-    
+
     environment {
         KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
         REGION = 'ap-northeast-2'
         AWS_CREDENTIAL_NAME = 'aws-key'
+        JSON_TEMPLATE_PATH = 'E:\\docker_Logi\\infra_structure\\policy-document-template.json' // 템플릿 파일 경로
         JSON_FILE_PATH = 'E:\\docker_Logi\\infra_structure\\policy-document.json' // JSON 파일 경로
     }
 
@@ -35,12 +36,20 @@ pipeline {
                         def oidcProvider = powershell(script: 'aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text', returnStdout: true).trim().replace('https://', '')
                         echo "oidcProvider: ${oidcProvider}"		
 
-		// PowerShell 스크립트를 사용하여 JSON 파일의 내용을 동적으로 업데이트
-                	bat """
-    		powershell -Command "(Get-Content '${env.JSON_FILE_PATH}' -Raw) -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.*?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \"${oidcProvider}:aud\": \"sts.amazonaws.com\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \"${oidcProvider}:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\" }' | Set-Content '${env.JSON_FILE_PATH}'; if (\$?) { Write-Host 'Content updated successfully.' } else { Write-Host 'Failed to update content.' }"
-    		echo "debugging"
-    		powershell -Command "(Get-Content '${env.JSON_FILE_PATH}')"
-		"""
+                        // policy-document-template.json을 복사하여 policy-document.json으로 저장
+                        bat """
+                        powershell -Command "Copy-Item -Path '${env.JSON_TEMPLATE_PATH}' -Destination '${env.JSON_FILE_PATH}'"
+                        """
+
+                        // PowerShell 스크립트를 사용하여 JSON 파일의 내용을 동적으로 업데이트
+                        bat """
+                        powershell -Command "(Get-Content '${env.JSON_FILE_PATH}' -Raw) -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.*?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \"${oidcProvider}:aud\": \"sts.amazonaws.com\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \"${oidcProvider}:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\" }' | Set-Content '${env.JSON_FILE_PATH}'; if (\$?) { Write-Host 'Content updated successfully.' } else { Write-Host 'Failed to update content.' }"
+                        """
+
+                        // 업데이트된 JSON 파일 출력 (디버깅용)
+                        bat """
+                        powershell -Command "(Get-Content '${env.JSON_FILE_PATH}')"
+                        """
 
                         // IAM 역할 신뢰 정책 업데이트
                         bat """
