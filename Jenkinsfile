@@ -34,7 +34,7 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         // OIDC 공급자를 먼저 가져온 후
                         def oidcProvider = powershell(script: 'aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text', returnStdout: true).trim().replace('https://', '')
-                        echo "oidcProvider: ${oidcProvider}"		
+                        echo "oidcProvider: ${oidcProvider}"        
 
                         // policy-document-template.json을 복사하여 policy-document.json으로 저장
                         bat """
@@ -43,7 +43,7 @@ pipeline {
 
                         // PowerShell 스크립트를 사용하여 JSON 파일의 내용을 동적으로 업데이트
                         bat """
-                        powershell -Command "(Get-Content 'E:\\docker_Logi\\infra_structure\\policy-document.json' -Raw) -replace '\\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/.*?\\"', '\\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6\\"' -replace '\\"StringEquals\\": {.*?}', '\\"StringEquals\\": { \\"oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6:aud\\": \\"sts.amazonaws.com\\" }' -replace '\\"StringLike\\": {.*?}', '\\"StringLike\\": { \\"oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6:sub\\": \\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\" }' | Set-Content 'E:\\docker_Logi\\infra_structure\\policy-document.json'; if (\$?) { Write-Host 'Content updated successfully.' } else { Write-Host 'Failed to update content.' }"
+                        powershell -Command "(Get-Content '${env.JSON_FILE_PATH}' -Raw) -replace 'here', '${oidcProvider}' | Set-Content '${env.JSON_FILE_PATH}'"
                         """
 
                         // 업데이트된 JSON 파일 출력 (디버깅용)
@@ -53,7 +53,7 @@ pipeline {
 
                         // IAM 역할 신뢰 정책 업데이트
                         bat """
-                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document file://${JSON_FILE_PATH}"
+                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document file://${env.JSON_FILE_PATH}"
                         """
                     }
                 }
