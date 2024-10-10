@@ -1,10 +1,11 @@
 pipeline {
     agent any
-
+    
     environment {
         KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
         REGION = 'ap-northeast-2'
         AWS_CREDENTIAL_NAME = 'aws-key'
+        JSON_FILE_PATH = 'E:\\docker_Logi\\infra_structure\\policy-document.json' // JSON 파일 경로
     }
 
     stages {
@@ -32,35 +33,16 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         // OIDC 공급자를 먼저 가져온 후
                         def oidcProvider = powershell(script: 'aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text', returnStdout: true).trim().replace('https://', '')
-                        echo "oidcProvider: ${oidcProvider}"
+                        echo "oidcProvider: ${oidcProvider}"		
 
-                        // 신뢰 정책 JSON 생성
-                        def policyDocument = """
-                        {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Principal": {
-                                        "Federated": "arn:aws:iam::339713037008:oidc-provider/${oidcProvider}"
-                                    },
-                                    "Action": "sts:AssumeRoleWithWebIdentity",
-                                    "Condition": {
-                                        "StringEquals": {
-                                            "${oidcProvider}:aud": "sts.amazonaws.com"
-                                        },
-                                        "StringLike": {
-                                            "${oidcProvider}:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                        """
+		// PowerShell 스크립트를 사용하여 JSON 파일의 내용을 동적으로 업데이트
+                	bat """
+                	powershell -Command "Set-Content '${env.JSON_FILE_PATH}' (Get-Content '${env.JSON_FILE_PATH}' -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.+?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \"${oidcProvider}:aud\": \"sts.amazonaws.com\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \"${oidcProvider}:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\" }')"
+                	"""
 
                         // IAM 역할 신뢰 정책 업데이트
                         bat """
-                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document '${policyDocument}'"
+                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document file://${JSON_FILE_PATH}"
                         """
                     }
                 }
@@ -138,7 +120,7 @@ pipeline {
             }
         }
     }
-
+    
     post {
         success {
             echo 'Infrastructure successfully deployed and PVC created!'
