@@ -67,6 +67,7 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
                         set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                        helm uninstall kafka || echo "Kafka not installed or already uninstalled"
                         helm uninstall zookeeper || echo "Zookeeper not installed or already uninstalled"
                         '''
                     }
