@@ -60,6 +60,19 @@ pipeline {
             }
         }
 
+        // Apply Kafka PVC
+        stage('Apply Kafka PVC') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc.yaml
+                        '''
+                    }
+                }
+            }
+        }
+
         // Install Helm Chart for Zookeeper and Kafka
         stage('Install Zookeeper and Kafka with Helm') {
             steps {

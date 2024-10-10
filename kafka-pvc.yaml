@@ -7,5 +7,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi  # 요청할 스토리지 크기
-  storageClassName: ebs-sc  # 앞서 정의한 스토리지 클래스 이름
+      storage: 8Gi
+  storageClassName: ebs-sc  # StorageClass를 명시적으로 지정
