@@ -6,6 +6,5 @@ provisioner: ebs.csi.aws.com
 parameters:
   type: gp2  # 원하는 EBS 타입
   fsType: ext4
-  zones: ap-northeast-2a,ap-northeast-2b,ap-northeast-2c  # 사용할 가용 영역
 reclaimPolicy: Delete  # PVC 삭제 시 PV도 삭제
 volumeBindingMode: Immediate  # PVC 소비를 위한 대기 모드
