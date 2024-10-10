@@ -30,7 +30,6 @@ pipeline {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        // Set KUBECONFIG environment variable to execute eksctl commands
                         bat '''
                         set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
@@ -111,7 +110,7 @@ pipeline {
                         kubectl get storageclass
 
                         REM Use FOR loop to get the Kafka Pod name
-                        FOR /F "tokens=*" %%i IN ('kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
+                        FOR /F "tokens=*" %%i IN ('kubectl get pod -l app.kubernetes.io/name=kafka --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
 
