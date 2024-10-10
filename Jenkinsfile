@@ -37,7 +37,7 @@ pipeline {
 
 		// PowerShell 스크립트를 사용하여 JSON 파일의 내용을 동적으로 업데이트
                 	bat """
-                	powershell -Command "(Get-Content '${env.JSON_FILE_PATH}') -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.+?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \"${oidcProvider}:aud\": \"sts.amazonaws.com\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \"${oidcProvider}:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\" }' | Set-Content '${env.JSON_FILE_PATH}';"
+                	powershell -Command "(Get-Content '${env.JSON_FILE_PATH}' -Raw) -replace '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/.+?\"', '\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/${oidcProvider}\"' -replace '\"StringEquals\": {.*?}', '\"StringEquals\": { \"${oidcProvider}:aud\": \"sts.amazonaws.com\" }' -replace '\"StringLike\": {.*?}', '\"StringLike\": { \"${oidcProvider}:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\" }' | Set-Content '${env.JSON_FILE_PATH}'"
 		"""
 
                         // IAM 역할 신뢰 정책 업데이트
