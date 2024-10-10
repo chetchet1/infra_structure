@@ -31,7 +31,7 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         // OIDC 공급자를 먼저 가져온 후
-                        def oidcProvider = powershell(script: 'aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text', returnStdout: true).trim()
+                        def oidcProvider = powershell(script: 'aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text', returnStdout: true).trim().replace('https://', '')
 		echo "oidcProvider: ${oidcProvider}"		
 		
                         // IAM 역할 신뢰 정책 업데이트
