@@ -36,7 +36,7 @@ pipeline {
 		
                         // IAM 역할 신뢰 정책 업데이트
                         bat """
-                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document '{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Federated\": \"arn:aws:iam::339713037008:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6\"}, \"Action\": \"sts:AssumeRoleWithWebIdentity\", \"Condition\": {\"StringEquals\": {\"oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6:aud\": \"sts.amazonaws.com\"}, \"StringLike\": {\"oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\"}}}]}'"
+                        powershell -Command "aws iam update-assume-role-policy --role-name AmazonEKSEBSCSIRole --policy-document '{\\"Version\\": \\"2012-10-17\\", \\"Statement\\": [{\\"Effect\\": \\"Allow\\", \\"Principal\\": {\\"Federated\\": \\"arn:aws:iam::339713037008:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6\\"}, \\"Action\\": \\"sts:AssumeRoleWithWebIdentity\\", \\"Condition\\": {\\"StringEquals\\": {\\"oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6:aud\\": \\"sts.amazonaws.com\\"}, \\"StringLike\\": {\\"oidc.eks.ap-northeast-2.amazonaws.com/id/90264961DB9C34A1E29C9445239C07F6:sub\\": \\"system:serviceaccount:kube-system:ebs-csi-controller-sa\\"}}}]}'"
                         """
                     }
                 }
