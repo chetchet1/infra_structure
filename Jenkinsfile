@@ -114,7 +114,7 @@ pipeline {
                     	   kubectl get pods -l app.kubernetes.io/name=kafka
                     	   kubectl get storageclass
                     
-                    	   kubectl exec -it ${kafka_pod} -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
+                    	   kubectl exec -i ${kafka_pod} -- bash -c "kafka-topics.sh --create --topic kafka-react-logi-acc1 --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1"
                 	"""
                     }
                 }
