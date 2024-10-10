@@ -5,6 +5,7 @@ pipeline {
         KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
         REGION = 'ap-northeast-2'
         AWS_CREDENTIAL_NAME = 'aws-key'
+        HELM_HOME = "C:\\Users\\Jenkins\\.helm" // Helm 설치 경로
     }
 
     stages {
@@ -41,6 +42,8 @@ pipeline {
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
+
+                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
                         '''
                     }
                 }
@@ -54,24 +57,27 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
                         kubectl apply -f E:/docker_Logi/infra_structure/storage-class.yaml
-                        kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-pvc.yaml
-                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc.yaml
                         '''
                     }
                 }
             }
         }
 
-        // Deploy Zookeeper and Kafka
-        stage('Deploy Zookeeper and Kafka') {
+        // Install Helm Chart for Zookeeper and Kafka
+        stage('Install Zookeeper and Kafka with Helm') {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
-                        kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-deployment.yaml
-                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-deployment.yaml
-                        kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-service.yaml
-                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-service.yaml
+                        set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
+                        helm repo add bitnami https://charts.bitnami.com/bitnami
+                        helm repo update
+
+                        REM Install Zookeeper
+                        helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
+                        
+                        REM Install Kafka
+                        helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=false --set externalZookeeper.servers=zookeeper.default.svc.cluster.local:2181
                         '''
                     }
                 }
@@ -84,15 +90,14 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
-	            kubectl get pods --all-namespaces
-                        kubectl get pvc
-                        FOR /F "tokens=*" %%i IN ('kubectl get pod -l app=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
+                        kubectl get pods -l app.kubernetes.io/name=kafka
+                        FOR /F "tokens=*" %%i IN ('kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
 
                         REM Check if KAFKA_POD is set correctly
                         echo Kafka Pod: %KAFKA_POD%
-                        
+
                         kubectl exec -it %KAFKA_POD% -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
                         '''
                     }
