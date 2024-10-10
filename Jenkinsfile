@@ -40,7 +40,7 @@ pipeline {
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
-		eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
+                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
                         '''
                     }
                 }
@@ -86,15 +86,11 @@ pipeline {
                         REM Install Kafka (with corrected settings)
                         helm install kafka bitnami/kafka -f E:/docker_Logi/infra_structure/values.yaml
 
-                        REM Wait for the Kafka pod to be in the Running state
-                        echo Waiting for Kafka pods to be in Running state...
-                        :loop
-                        kubectl get pods -l app.kubernetes.io/name=kafka -o jsonpath="{.items[?(@.status.phase=='Running')].metadata.name}" | findstr /C:"kafka-controller" >nul
-                        if errorlevel 1 (
-                            timeout /t 10 >nul
-                            goto loop
-                        )
-                        echo Kafka pods are now Running!
+                        REM Wait for 2 minutes before checking Kafka pod status
+                        timeout /t 120 >nul
+
+                        REM Check Kafka pods status
+                        kubectl get pods -l app.kubernetes.io/name=kafka
                         '''
                     }
                 }
