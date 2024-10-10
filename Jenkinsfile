@@ -99,7 +99,7 @@ pipeline {
                         bat '''
                         kubectl get pods -l app.kubernetes.io/name=kafka
                         kubectl get storageclass
-		aws sts get-caller-identity --role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole
+		aws sts assume-role --role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --role-session-name MySession
                         FOR /F "tokens=*" %%i IN ('kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
