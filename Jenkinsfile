@@ -60,19 +60,6 @@ pipeline {
             }
         }
 
-        // Create PVC
-        stage('Create PVC') {
-            steps {
-                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        bat '''
-                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc.yaml
-                        '''
-                    }
-                }
-            }
-        }
-
         // Install Helm Chart for Zookeeper and Kafka
         stage('Install Zookeeper and Kafka with Helm') {
             steps {
@@ -84,7 +71,7 @@ pipeline {
                         helm repo update
                         
                         REM Install Kafka (with corrected settings)
-                        
+                        helm install kafka bitnami/kafka --set persistence.enabled=true --set persistence.storageClass=ebs-sc --set persistence.size=8Gi 
                         '''
                     }
                 }
@@ -99,7 +86,7 @@ pipeline {
                         bat '''
                         kubectl get pods -l app.kubernetes.io/name=kafka
                         kubectl get storageclass
-		aws sts assume-role --role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --role-session-name MySession
+		
                         FOR /F "tokens=*" %%i IN ('kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
