@@ -109,12 +109,12 @@ pipeline {
                         kubectl get pods -l app.kubernetes.io/name=kafka
                         kubectl get storageclass
 
-                        kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"
+		def kafka_pod = powershell(script: 'kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"', returnStdout: true).trim()
                        
                         REM Check if KAFKA_POD is set correctly
-                        echo Kafka Pod: %KAFKA_POD%
+                        echo kafka_pod: %kafka_pod%
 
-                        kubectl exec -it %KAFKA_POD% -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
+                        kubectl exec -it %kafka_pod% -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
                         '''
                     }
                 }
