@@ -109,12 +109,13 @@ pipeline {
 
 		echo "kafka_pod: ${kafka_pod}"
 
-		bat '''
-                        kubectl get pods -l app.kubernetes.io/name=kafka
-                        kubectl get storageclass
-                        
-                        kubectl exec -it ${kafka_pod} -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
-                        '''
+		 // 3. Kafka Topics 생성
+                	bat """
+                    	   kubectl get pods -l app.kubernetes.io/name=kafka
+                    	   kubectl get storageclass
+                    
+                    	   kubectl exec -it ${kafka_pod} -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
+                	"""
                     }
                 }
             }
