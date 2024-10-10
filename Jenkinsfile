@@ -41,9 +41,13 @@ pipeline {
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
-                        
-                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
                         '''
+                        def addonExists = sh(script: 'eksctl get addon --cluster test-eks-cluster --region ap-northeast-2 | findstr aws-ebs-csi-driver', returnStatus: true) == 0
+                        if (!addonExists) {
+                            bat 'eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2'
+                        } else {
+                            echo "Addon 'aws-ebs-csi-driver' already exists, skipping creation."
+                        }
                     }
                 }
             }
