@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        // Set KUBECFIG environment variable to execute eksctl commands
+                        // Set KUBECONFIG environment variable to execute eksctl commands
                         bat '''
                         set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
                         aws eks update-kubeconfig --region ap-northeast-2 --name test-eks-cluster
@@ -87,11 +87,8 @@ pipeline {
                         REM Install Zookeeper
                         helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
                         
-                        REM Wait for Zookeeper to be ready
-                        kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/name=zookeeper --timeout=300s
-
                         REM Install Kafka (with corrected settings)
-                        helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=true --set replicaCount=3 --set controller.replicaCount=0
+                        helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=true --set controller.enabled=false
                         '''
                     }
                 }
