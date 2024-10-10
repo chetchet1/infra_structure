@@ -75,6 +75,7 @@ pipeline {
                         helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
                         
                         REM Install Kafka (with corrected settings)
+                        helm template kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=true --set controller.enabled=false --set kafka.kraft.enabled=false
                         helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=true --set controller.enabled=false --set kafka.kraft.enabled=false
                         '''
                     }
