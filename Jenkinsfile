@@ -5,7 +5,7 @@ pipeline {
         KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
         REGION = 'ap-northeast-2'
         AWS_CREDENTIAL_NAME = 'aws-key'
-        JSON_FILE_PATH = 'E:\docker_Logi\infra_structure/policy-document.json' // JSON 파일 경로
+        JSON_FILE_PATH = 'E:\\docker_Logi\\infra_structure\\policy-document.json' // JSON 파일 경로
     }
 
     stages {
