@@ -7,4 +7,4 @@ parameters:
   type: gp2  # 원하는 EBS 타입
   fsType: ext4
 reclaimPolicy: Delete  # PVC 삭제 시 PV도 삭제
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate

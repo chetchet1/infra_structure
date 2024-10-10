@@ -1,0 +1,6 @@
+persistence:
+  enabled: true
+  storageClass: ebs-sc  # 사용할 StorageClass
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi  # 필요한 스토리지 용량
