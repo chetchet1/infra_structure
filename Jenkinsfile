@@ -41,20 +41,32 @@ pipeline {
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
-
                         '''
                     }
                 }
             }
         }
 
-        // Apply Storage Class and PVCs
-        stage('Apply Storage Class and PVCs') {
+        // Apply Storage Class
+        stage('Apply Storage Class') {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
                         kubectl apply -f E:/docker_Logi/infra_structure/storage-class.yaml
+                        '''
+                    }
+                }
+            }
+        }
+
+        // Create PVC
+        stage('Create PVC') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        kubectl apply -f E:/docker_Logi/infra_structure/pvc.yaml
                         '''
                     }
                 }
@@ -72,7 +84,7 @@ pipeline {
                         helm repo update
                         
                         REM Install Kafka (with corrected settings)
-
+                        helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=20Gi
                         '''
                     }
                 }
@@ -86,7 +98,7 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
                         kubectl get pods -l app.kubernetes.io/name=kafka
-		kubectl get storageclass
+                        kubectl get storageclass
                         FOR /F "tokens=*" %%i IN ('kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
@@ -104,7 +116,7 @@ pipeline {
     
     post {
         success {
-            echo 'Infrastructure successfully deployed and topics created!'
+            echo 'Infrastructure successfully deployed, PVC created, and topics created!'
         }
         failure {
             echo 'Deployment failed.'
