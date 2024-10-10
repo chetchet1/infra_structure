@@ -4,18 +4,19 @@
         {
             "Effect": "Allow",
             "Principal": {
-                "Federated": "arn:aws:iam::339713037008:oidc-provider/${oidcProvider}"
+                "Federated": "arn:aws:iam::339713037008:oidc-provider/abc"
             },
             "Action": "sts:AssumeRoleWithWebIdentity",
             "Condition": {
                 "StringEquals": {
-                    "${oidcProvider}:aud": "sts.amazonaws.com"
+                    "bax:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                    "${oidcProvider}:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+                    "abc:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
                 }
             }
         }
     ]
 }
+
 
