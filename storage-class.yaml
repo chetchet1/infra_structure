@@ -8,4 +8,4 @@ parameters:
   fsType: ext4
   zones: ap-northeast-2a,ap-northeast-2b,ap-northeast-2c  # 사용할 가용 영역
 reclaimPolicy: Delete  # PVC 삭제 시 PV도 삭제
-volumeBindingMode: WaitForFirstConsumer  # PVC 소비를 위한 대기 모드
+volumeBindingMode: immediate  # PVC 소비를 위한 대기 모드
