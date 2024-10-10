@@ -5,7 +5,6 @@ pipeline {
         KUBECONFIG = "C:\\Windows\\system32\\config\\systemprofile\\.kube\\config"
         REGION = 'ap-northeast-2'
         AWS_CREDENTIAL_NAME = 'aws-key'
-        HELM_HOME = "C:\\Users\\Jenkins\\.helm" // Helm 설치 경로
     }
 
     stages {
@@ -43,7 +42,7 @@ pipeline {
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
 
-                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
+                        
                         '''
                     }
                 }
@@ -76,8 +75,14 @@ pipeline {
                         REM Install Zookeeper
                         helm install zookeeper bitnami/zookeeper --set persistence.storageClass=ebs-sc --set persistence.size=8Gi
                         
-                        REM Install Kafka
-                        helm install kafka bitnami/kafka --set persistence.storageClass=ebs-sc --set persistence.size=8Gi --set zookeeper.enabled=false --set externalZookeeper.servers=zookeeper.default.svc.cluster.local:2181
+                        REM Install Kafka (with corrected settings)
+                        helm install kafka bitnami/kafka \
+                            --set persistence.storageClass=ebs-sc \
+                            --set persistence.size=8Gi \
+                            --set zookeeper.enabled=false \
+                            --set externalZookeeper.servers=zookeeper.default.svc.cluster.local:2181 \
+                            --set replicaCount=3 \  # Kafka 브로커 3개 설정
+                            --set controller.replicaCount=0  # Zookeeper 모드에서 Controller 노드를 비활성화
                         '''
                     }
                 }
