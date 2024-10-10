@@ -50,32 +50,44 @@ pipeline {
         // Kubernetes 스토리지 클래스 및 PVC 생성
         stage('Apply Storage Class and PVCs') {
             steps {
-                bat '''
-                kubectl apply -f E:/docker_Logi/infra_structure/storage-class.yaml
-                kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-pvc.yaml
-                kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc.yaml
-                '''
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        kubectl apply -f E:/docker_Logi/infra_structure/storage-class.yaml
+                        kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-pvc.yaml
+                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc.yaml
+                        '''
+                    }
+                }
             }
         }
 
         // Zookeeper 및 Kafka 배포
         stage('Deploy Zookeeper and Kafka') {
             steps {
-                bat '''
-                kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-deployment.yaml
-                kubectl apply -f E:/docker_Logi/infra_structure/kafka-deployment.yaml
-                kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-service.yaml
-                kubectl apply -f E:/docker_Logi/infra_structure/kafka-service.yaml
-                '''
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-deployment.yaml
+                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-deployment.yaml
+                        kubectl apply -f E:/docker_Logi/infra_structure/zookeeper-service.yaml
+                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-service.yaml
+                        '''
+                    }
+                }
             }
         }
 
         // Kafka 토픽 생성
         stage('Create Kafka Topics') {
             steps {
-                bat '''
-                kubectl exec -it $(kubectl get pod -l app=kafka -o jsonpath='{.items[0].metadata.name}') -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
-                '''
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
+                        bat '''
+                        kubectl exec -it $(kubectl get pod -l app=kafka -o jsonpath='{.items[0].metadata.name}') -- bash -c "kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1"
+                        '''
+                    }
+                }
             }
         }
     }
