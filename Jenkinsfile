@@ -42,7 +42,6 @@ pipeline {
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
 
-                        eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
                         '''
                     }
                 }
@@ -56,21 +55,6 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
                         kubectl apply -f E:/docker_Logi/infra_structure/storage-class.yaml
-                        '''
-                    }
-                }
-            }
-        }
-
-        // Uninstall previous Zookeeper if it exists
-        stage('Uninstall Previous Zookeeper') {
-            steps {
-                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        bat '''
-                        set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
-                        helm uninstall kafka || echo "Kafka not installed or already uninstalled"
-                        helm uninstall zookeeper || echo "Zookeeper not installed or already uninstalled"
                         '''
                     }
                 }
