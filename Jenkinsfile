@@ -40,6 +40,7 @@ pipeline {
                         aws eks describe-cluster --name test-eks-cluster --region ap-northeast-2 --query "cluster.identity.oidc.issuer" --output text
                         
                         kubectl apply -f E:/docker_Logi/infra_structure/ebs-csi-service-account.yaml
+		eksctl create addon --name aws-ebs-csi-driver --cluster test-eks-cluster --service-account-role-arn arn:aws:iam::339713037008:role/AmazonEKSEBSCSIRole --force --region ap-northeast-2
                         '''
                     }
                 }
@@ -99,32 +100,11 @@ pipeline {
                 }
             }
         }
-
-        // Create Kafka Topics
-        stage('Create Kafka Topics') {
-            steps {
-                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-		def kafka_pod = powershell(script: 'kubectl get pod -l app.kubernetes.io/name=kafka -o jsonpath="{.items[0].metadata.name}"', returnStdout: true).trim()                        
-
-		echo "kafka_pod: ${kafka_pod}"
-
-		 // 3. Kafka Topics 생성
-                	bat """
-                    	   kubectl get pods -l app.kubernetes.io/name=kafka
-                    	   kubectl get storageclass
-                    
-                    	   kubectl exec -i ${kafka_pod} -- bash -c "kafka-topics.sh --create --topic kafka-react-logi-acc1 --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1"
-                	"""
-                    }
-                }
-            }
-        }
     }
     
     post {
         success {
-            echo 'Infrastructure successfully deployed, PVC created, and topics created!'
+            echo 'Infrastructure successfully deployed and PVC created!'
         }
         failure {
             echo 'Deployment failed.'
