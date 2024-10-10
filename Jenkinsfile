@@ -85,6 +85,7 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
 	            kubectl get pods --all-namespaces
+                        kubectl get pvc
                         FOR /F "tokens=*" %%i IN ('kubectl get pod -l app=kafka -o jsonpath="{.items[0].metadata.name}"') DO (
                             set KAFKA_POD=%%i
                         )
