@@ -100,7 +100,9 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         bat '''
-                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc.yaml
+                        kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc0.yaml
+		kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc1.yaml
+		kubectl apply -f E:/docker_Logi/infra_structure/kafka-pvc2.yaml
                         '''
                     }
                 }
