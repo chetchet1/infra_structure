@@ -108,31 +108,6 @@ pipeline {
                 }
             }
         }
-
-        // Install Helm Chart for Zookeeper and Kafka
-        stage('Install Zookeeper and Kafka with Helm') {
-            steps {
-                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
-                        bat '''
-                        set KUBECONFIG=C:\\Windows\\system32\\config\\systemprofile\\.kube\\config
-                        helm repo add bitnami https://charts.bitnami.com/bitnami
-                        helm repo update
-                        
-                        REM Install Kafka (with corrected settings)
-                        helm install kafka bitnami/kafka -f E:/docker_Logi/infra_structure/values.yaml
-
-                        REM Wait for 2 minutes before checking Kafka pod status
-                        timeout /t 120 >nul
-
-                        REM Check Kafka pods status
-                        kubectl get pods -l app.kubernetes.io/name=kafka
-                        '''
-                    }
-                }
-            }
-        }
-    }
     
     post {
         success {
