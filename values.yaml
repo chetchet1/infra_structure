@@ -1,6 +1,20 @@
+# Persistence settings
 persistence:
   enabled: true
-  storageClass: ebs-sc  # ì‚¬ìš©í•  StorageClass
+  storageClass: ebs-sc  # ?????StorageClass
   accessModes:
     - ReadWriteOnce
-  size: 8Gi  # í•„ìš”í•œ ìŠ¤í† ë¦¬ì§€ ìš©ëŸ‰
+  size: 8Gi  # ?ê¾©ìŠ‚????½ë„—?±Ñ? ??¸ì›¾
+
+# Network settings
+listeners:
+  external:
+    enabled: true
+    port: 9092
+    type: LoadBalancer
+advertisedListeners:
+  - name: external
+    port: 9092
+    host: ${LOAD_BALANCER_IP}  # ?ëª? IP ?ë¨?’— DNSæ¿?è«›ë¶½??ºŒ?±ê½­??
+
+
