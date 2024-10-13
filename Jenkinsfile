@@ -108,7 +108,8 @@ pipeline {
                 }
             }
         }
-    
+    }
+
     post {
         success {
             echo 'Infrastructure successfully deployed and PVC created!'
